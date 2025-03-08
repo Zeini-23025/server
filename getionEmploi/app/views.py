@@ -1,3 +1,7 @@
-from django.shortcuts import render
+from rest_framework import viewsets
+from .models import Enseignant
+from .serializers import EnseignantSerializer
 
-# Create your views here.
+class EnseignantViewSet(viewsets.ModelViewSet):
+    queryset = Enseignant.objects.all()
+    serializer_class = EnseignantSerializer
