@@ -1,12 +1,32 @@
 from django.db import models
-
+from django.db import models, transaction
+from django.contrib.auth.models import User
+from django.utils.crypto import get_random_string
+from users.models import User
+from getionEmploi.utils import envoyer_email
 
 class Enseignant(models.Model):
     nom = models.CharField(max_length=255)
-    identifiant = models.CharField(max_length=255, unique=True)
-
+    identifiant = models.CharField(max_length=255, unique=True,null=False)
+    email = models.EmailField(unique=True, max_length=255, null=False)
+    
     def __str__(self):
         return self.nom
+
+    def save(self, *args, **kwargs):
+        with transaction.atomic():
+            is_new = self.pk is None  
+            super().save(*args, **kwargs) 
+            
+            if is_new: 
+                # password = get_random_string(6)
+                password = "1234"
+                if envoyer_email(self.email,password,"votre mot de passe"):
+                    User.objects.create_user(
+                        id_enseignt=self.pk,
+                        email=self.email, 
+                        password=password
+                    )
 
 
 class Matiere(models.Model):
