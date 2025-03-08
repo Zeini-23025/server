@@ -5,6 +5,10 @@ class Enseignant(models.Model):
     nom = models.CharField(max_length=255)
     identifiant = models.CharField(max_length=255, unique=True)
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> yeslem
     def __str__(self):
         return self.nom
 
