@@ -30,12 +30,21 @@ Un pipeline **CI/CD** est configuré via **GitHub Actions** pour automatiser le 
 - ✅ Workflow GitHub Actions automatisant le build et le push de l'image Docker.
 - ✅ L'URL du dépôt Docker Hub contenant l’image Docker.
 
-## 📎 Liens Utiles
+# 🏆 Nom de l'équipe : **Not Found**
 
-- 🔗 [Dépôt GitHub - Backend](https://github.com/Zeini-23025/server)
-- 🐳 [Dépôt Docker Hub - Backend](https://hub.docker.com/r/zeini/docker-server)
-- 🔗 [Dépôt GitHub - Frontend](https://github.com/Zeini-23025/client)
-- 🐳 [Dépôt Docker Hub - Frontend](https://hub.docker.com/r/zeini/docker-client)
+## 🚀 Projet **Not Found** - Liens Utiles
+
+## 🔹 Dépôts GitHub
+🔗 **Backend** : [GitHub - Server](https://github.com/Zeini-23025/server)  
+🔗 **Frontend** : [GitHub - Client](https://github.com/Zeini-23025/client)  
+
+## 🐳 Dépôts Docker Hub
+🐳 **Backend** : [Docker Hub - Server](https://hub.docker.com/r/zeini/docker-server)  
+🐳 **Frontend** : [Docker Hub - Client](https://hub.docker.com/r/zeini/docker-client)  
+
+## 🚀 Accéder aux applications
+🔹 **Backend** : [🌍 docker-server-m0lg.onrender.com](https://docker-server-m0lg.onrender.com/)  
+🔹 **Frontend** : [🌍 docker-client-hhi7.onrender.com](https://docker-client-hhi7.onrender.com)  
 
 ---
 
@@ -76,8 +85,6 @@ Un pipeline **CI/CD** est configuré via **GitHub Actions** pour automatiser le 
     docker run -p 8000:8000 zeini/docker-server
     ```
 
-3. **Accéder à l’application Backend** :
-    - [https://docker-server-m0lg.onrender.com/](https://docker-server-m0lg.onrender.com/)
 
 ---
 
