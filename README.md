@@ -98,5 +98,8 @@ Si vous préférez utiliser Docker pour exécuter l'application sans avoir à in
 
 ### ⚙️ **CI/CD avec GitHub Actions**
 
-Le backend utilise un pipeline **CI/CD** configuré via **GitHub Actions**. À chaque `push` sur la branche `main`, l'image Docker est construite et poussée vers Docker Hub. Voici un aperçu du fichier de workflow `.github/workflows/docker-publish.yml` :
+Le backend utilise un pipeline **CI/CD** configuré via **GitHub Actions**. À chaque `push` sur la branche `main`, l'image Docker est construite et poussée vers Docker Hub. Voici un aperçu du fichier de workflow `.github/workflows/docker-publish.yml` c
 
+## 📄 License
+
+Ce projet est sous la **MIT License** - voir le fichier [LICENSE](./LICENSE) pour plus de détails.

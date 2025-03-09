@@ -1,0 +1,8 @@
+### Explications supplémentaires :
+- **Clonage du repository** : Les utilisateurs sont invités à cloner le repository avec Git.
+- **Docker** : Les étapes expliquent comment construire l'image Docker, exécuter l'application en local, gérer les migrations, et exécuter l'application en mode développement.
+- **CI/CD** : Une section est dédiée à la configuration GitHub Actions pour automatiser le déploiement de l'image Docker vers Docker Hub.
+- **API REST** : Des exemples d'API sont donnés pour aider à l'interaction avec le backend.
+- **Contribution** : Les utilisateurs peuvent facilement contribuer en suivant les étapes indiquées dans la section "Contribution".
+
+Ce `README.md` est complet et très utile pour les utilisateurs souhaitant mettre en place et utiliser votre projet avec Docker ou Git.
