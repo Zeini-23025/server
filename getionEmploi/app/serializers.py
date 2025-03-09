@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Matiere ,EmploiTemps ,Groupe ,Enseignant ,Disponibilite ,Calendrier ,ChargeHebdomadaire ,AffectationEnseignant ,GroupeMatiere ,ContrainteHoraire
+from .models import Matiere ,EmploiTemps ,Groupe ,Enseignant ,Disponibilite ,Calendrier ,ChargeHebdomadaire ,AffectationEnseignant ,GroupeMatiere ,ContrainteHoraire ,Salle
 
 class MatiereSerializer(serializers.ModelSerializer):
     class Meta:
@@ -90,7 +90,7 @@ class EmploiTempsSerializer(serializers.ModelSerializer):
    
     class Meta:
         model = EmploiTemps
-        fields = ['id', 'groupe', 'matiere', 'enseignant', 'jour', 'creneau', 'type_cours']
+        fields = ['id', 'groupe', 'matiere', 'enseignant', 'salle', 'jour', 'creneau', 'type_cours']
 
     def validate(self, data):
         """
@@ -111,3 +111,8 @@ class EmploiTempsSerializer(serializers.ModelSerializer):
 
         return data
 
+
+class SalleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Salle
+        fields = ['id', 'nom', 'type_salle']

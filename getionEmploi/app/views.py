@@ -3,8 +3,8 @@ from datetime import timedelta
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
-from .models import Matiere, Enseignant ,Groupe ,Calendrier ,AffectationEnseignant ,GroupeMatiere ,ContrainteHoraire ,Disponibilite ,ChargeHebdomadaire ,EmploiTemps
-from .serializers import MatiereSerializer, EnseignantSerializer ,GroupeSerializer,CalendrierSerializer ,DisponibiliteSerializer,AffectationEnseignantSerializer,GroupeMatiereSerializer,ChargeHebdomadaireSerializer ,ContrainteHoraireSerializer,EmploiTempsSerializer
+from .models import Matiere, Enseignant ,Groupe ,Calendrier ,AffectationEnseignant ,GroupeMatiere ,ContrainteHoraire ,Disponibilite ,ChargeHebdomadaire ,EmploiTemps,Salle
+from .serializers import MatiereSerializer, EnseignantSerializer ,GroupeSerializer,CalendrierSerializer ,DisponibiliteSerializer,AffectationEnseignantSerializer,SalleSerializer,GroupeMatiereSerializer,ChargeHebdomadaireSerializer ,ContrainteHoraireSerializer,EmploiTempsSerializer
 
 class MatiereViewSet(viewsets.ModelViewSet):
     queryset = Matiere.objects.all()
@@ -174,7 +174,10 @@ class GroupeMatiereViewSet(viewsets.ModelViewSet):
 class EmploiTempsViewSet(viewsets.ModelViewSet):
     queryset = EmploiTemps.objects.all()
     serializer_class = EmploiTempsSerializer
-    
+  
+class SalleViewSet(viewsets.ModelViewSet):
+    queryset = Salle.objects.all()
+    serializer_class = SalleSerializer  
     
 class ContrainteHoraireViewSet(viewsets.ModelViewSet):
     queryset = ContrainteHoraire.objects.all()

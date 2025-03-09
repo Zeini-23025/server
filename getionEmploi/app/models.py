@@ -56,6 +56,18 @@ class Groupe(models.Model):
         return list(self.groupe_matiere_set.values_list('matiere__nom', flat=True))
     def __str__(self):
         return self.nom
+    
+class Salle(models.Model):
+    nom = models.CharField(max_length=255, unique=True)
+    TYPE_SALLE = [
+        ('CM', 'Cours Magistral'),
+        ('TD', 'Travaux Dirigés'),
+        ('TP', 'Travaux Pratiques'),
+    ]
+    type_salle = models.CharField(max_length=2, choices=TYPE_SALLE)
+
+    def __str__(self):
+        return f"{self.nom} - {self.type_salle}"
 
 class Disponibilite(models.Model):
     enseignant = models.ForeignKey(Enseignant, on_delete=models.CASCADE, related_name="disponibilites")
@@ -185,6 +197,7 @@ class EmploiTemps(models.Model):
     groupe = models.ForeignKey(Groupe, on_delete=models.CASCADE)
     matiere = models.ForeignKey(Matiere, on_delete=models.CASCADE)
     enseignant = models.ForeignKey(Enseignant, on_delete=models.CASCADE)
+    salle = models.ForeignKey(Salle, on_delete=models.CASCADE, null=True, blank=True)  # ✅ Ajout de la salle
     jour = models.CharField(max_length=10, choices=[
         ('Lundi', 'Lundi'), ('Mardi', 'Mardi'), ('Mercredi', 'Mercredi'),
         ('Jeudi', 'Jeudi'), ('Vendredi', 'Vendredi'), ('Samedi', 'Samedi')
@@ -196,17 +209,24 @@ class EmploiTemps(models.Model):
         constraints = [
             models.UniqueConstraint(fields=['enseignant', 'jour', 'creneau'], name='unique_enseignant_creneau_emploi'),
             models.UniqueConstraint(fields=['groupe', 'jour', 'creneau'], name='unique_groupe_creneau'),
+            models.UniqueConstraint(fields=['salle', 'jour', 'creneau'], name='unique_salle_creneau'),  # ✅ Ajout de la contrainte
         ]
 
     def clean(self):
         """
-        Vérifie si l'enseignant ou le groupe a déjà un cours sur ce créneau.
+        Vérifie si l'enseignant, le groupe ou la salle est déjà occupé sur ce créneau.
         """
+        # Vérifier si l'enseignant est déjà occupé
         if EmploiTemps.objects.filter(enseignant=self.enseignant, jour=self.jour, creneau=self.creneau).exists():
             raise ValidationError("L'enseignant a déjà un cours sur ce créneau.")
 
+        # Vérifier si le groupe est déjà occupé
         if EmploiTemps.objects.filter(groupe=self.groupe, jour=self.jour, creneau=self.creneau).exists():
             raise ValidationError("Le groupe a déjà un cours sur ce créneau.")
+
+        # Vérifier si la salle est déjà occupée
+        if self.salle and EmploiTemps.objects.filter(salle=self.salle, jour=self.jour, creneau=self.creneau).exists():
+            raise ValidationError("Cette salle est déjà réservée pour un autre cours à ce créneau.")
 
     def save(self, *args, **kwargs):
         """
@@ -216,7 +236,7 @@ class EmploiTemps(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.groupe.nom} - {self.matiere.nom} ({self.jour}, {self.creneau})"
+        return f"{self.groupe.nom} - {self.matiere.nom} ({self.jour}, {self.creneau}) - {self.salle.nom if self.salle else 'Salle Non Assignée'}"
         
 class ContrainteHoraire(models.Model):
     """

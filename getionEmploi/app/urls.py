@@ -12,7 +12,8 @@ from .views import (
     ContrainteHoraireViewSet,
     get_enseignant_disponibilites,
     get_groupe_matiere,
-    get_matiere_enseignants
+    get_matiere_enseignants,
+    SalleViewSet
 )
 
 router = DefaultRouter()
@@ -25,6 +26,7 @@ router.register(r'charges', ChargeHebdomadaireViewSet)
 router.register(r'affectations-enseignant', AffectationEnseignantViewSet)
 router.register(r'groupes-matieres', GroupeMatiereViewSet)
 router.register(r'contraintes_horaires', ContrainteHoraireViewSet)
+router.register(r'salles', SalleViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),  
