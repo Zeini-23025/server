@@ -5,7 +5,6 @@ from .views import (
     MatiereViewSet,
     GroupeViewSet,
     GroupeMatiereViewSet,
-    ConflitGroupeViewSet,
     ChargeHebdomadaireViewSet,
     DisponibiliteViewSet,
     CalendrierViewSet,
