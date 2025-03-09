@@ -1,19 +1,18 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import (
-    EnseignantViewSet,
-    MatiereViewSet,
-    GroupeViewSet,
-    GroupeMatiereViewSet,
-    ConflitGroupeViewSet
-)
+from .views import get_enseignant_disponibilites, get_groupe_matiere, get_matiere_enseignants, EnseignantViewSet , ChargeHebdomadaireViewSet ,GroupeViewSet ,MatiereViewSet ,DisponibiliteViewSet ,CalendrierViewSet ,AffectationEnseignantViewSet ,GroupeMatiereViewSet,ContrainteHoraireViewSet
 
 router = DefaultRouter()
 router.register(r'matieres', MatiereViewSet)
 router.register(r'enseignants', EnseignantViewSet, basename='enseignant')
 router.register(r'groupes', GroupeViewSet)
-router.register(r'groupe-matieres', GroupeMatiereViewSet)
-router.register(r'conflit-groupes', ConflitGroupeViewSet)
+router.register(r'disponibilites', DisponibiliteViewSet)
+router.register(r'calendrier', CalendrierViewSet)
+router.register(r'charges', ChargeHebdomadaireViewSet)
+router.register(r'affectations-enseignant', AffectationEnseignantViewSet)
+router.register(r'groupes-matieres', GroupeMatiereViewSet)
+router.register(r'contraintes_horaires', ContrainteHoraireViewSet)
+
 
 urlpatterns = [
     path('', include(router.urls)),  
@@ -25,3 +24,7 @@ urlpatterns = [
     path('groupes/<int:groupe_id>/matieres/', get_groupe_matiere, name='get_groupe_matiere'),
     path('matieres/<int:matiere_id>/enseignants/', get_matiere_enseignants, name='get_matiere_enseignants'),
 ]
+
+
+
+
