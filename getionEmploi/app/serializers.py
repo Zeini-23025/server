@@ -4,7 +4,7 @@ from .models import Matiere ,EmploiTemps ,Groupe ,Enseignant ,Disponibilite ,Cal
 class MatiereSerializer(serializers.ModelSerializer):
     class Meta:
         model = Matiere
-
+        fields = '__all__' 
 class EnseignantSerializer(serializers.ModelSerializer):
     class Meta:
         model = Enseignant
