@@ -1,11 +1,12 @@
 from django.db import transaction
 from rest_framework import viewsets
-from datetime import timedelta
+from datetime import timedelta ,date
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 from .models import Matiere, Enseignant ,Groupe ,Calendrier ,AffectationEnseignant ,GroupeMatiere ,ContrainteHoraire ,Disponibilite ,ChargeHebdomadaire ,EmploiTemps,Salle
 from .serializers import MatiereSerializer, EnseignantSerializer ,GroupeSerializer,CalendrierSerializer ,DisponibiliteSerializer,AffectationEnseignantSerializer,SalleSerializer,GroupeMatiereSerializer,ChargeHebdomadaireSerializer ,ContrainteHoraireSerializer,EmploiTempsSerializer
+from .services import generer_emploi_temps
 
 class MatiereViewSet(viewsets.ModelViewSet):
     queryset = Matiere.objects.all()
@@ -247,9 +248,6 @@ class GroupeMatiereViewSet(viewsets.ModelViewSet):
     queryset = GroupeMatiere.objects.all()
     serializer_class = GroupeMatiereSerializer
 
-class EmploiTempsViewSet(viewsets.ModelViewSet):
-    queryset = EmploiTemps.objects.all()
-    serializer_class = EmploiTempsSerializer
   
 class SalleViewSet(viewsets.ModelViewSet):
     queryset = Salle.objects.all()
@@ -287,4 +285,24 @@ def get_matiere_enseignants(request, matiere_id):
         return Response({"matiere": matiere.nom, "enseignants": enseignants}, status=status.HTTP_200_OK)
     except Matiere.DoesNotExist:
         return Response({"error": "Matière non trouvée"}, status=status.HTTP_404_NOT_FOUND)
+
+
+class EmploiTempsGroupeViewSet(viewsets.ViewSet):
+    def list(self, request, groupe_id, semaine):
+        emplois = EmploiTemps.objects.filter(groupe_id=groupe_id, semaine=semaine)
+        serializer = EmploiTempsSerializer(emplois, many=True)
+        return Response(serializer.data)
+
+class EmploiTempsEnseignantViewSet(viewsets.ViewSet):
+    def list(self, request, enseignant_id, semaine):
+        emplois = EmploiTemps.objects.filter(enseignant_id=enseignant_id, semaine=semaine)
+        serializer = EmploiTempsSerializer(emplois, many=True)
+        return Response(serializer.data)
+
+# Viewset pour générer ou mettre à jour l'emploi du temps actuel
+class GenererEmploiTempsViewSet(viewsets.ViewSet):
+    def create(self, request):
+        semaine_actuelle = date.today() - timedelta(days=date.today().weekday())
+        message = generer_emploi_temps(semaine_actuelle)
+        return Response({"message": message})
 
