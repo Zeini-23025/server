@@ -1,3 +1,5 @@
+# 🏆 Nom de l'équipe : **Not Found**
+
 # Gestion d'Emploi du Temps - Backend
 
 ## 📌 Objectif
@@ -30,9 +32,7 @@ Un pipeline **CI/CD** est configuré via **GitHub Actions** pour automatiser le 
 - ✅ Workflow GitHub Actions automatisant le build et le push de l'image Docker.
 - ✅ L'URL du dépôt Docker Hub contenant l’image Docker.
 
-# 🏆 Nom de l'équipe : **Not Found**
 
-## 🚀 Projet **Not Found** - Liens Utiles
 
 ## 🔹 Dépôts GitHub
 🔗 **Backend** : [GitHub - Server](https://github.com/Zeini-23025/server)  
