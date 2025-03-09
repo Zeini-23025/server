@@ -1,10 +1,12 @@
+from django.db import transaction
 from rest_framework import viewsets
-from datetime import timedelta
+from datetime import timedelta ,date
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 from .models import Matiere, Enseignant ,Groupe ,Calendrier ,AffectationEnseignant ,GroupeMatiere ,ContrainteHoraire ,Disponibilite ,ChargeHebdomadaire ,EmploiTemps,Salle
 from .serializers import MatiereSerializer, EnseignantSerializer ,GroupeSerializer,CalendrierSerializer ,DisponibiliteSerializer,AffectationEnseignantSerializer,SalleSerializer,GroupeMatiereSerializer,ChargeHebdomadaireSerializer ,ContrainteHoraireSerializer,EmploiTempsSerializer
+from .services import generer_emploi_temps
 
 class MatiereViewSet(viewsets.ModelViewSet):
     queryset = Matiere.objects.all()
@@ -43,31 +45,106 @@ class GroupeViewSet(viewsets.ModelViewSet):
 class DisponibiliteViewSet(viewsets.ModelViewSet):
     queryset = Disponibilite.objects.all()
     serializer_class = DisponibiliteSerializer
-
+    
     def create(self, request, *args, **kwargs):
-        """ Empêcher les doublons et enregistrer une nouvelle disponibilité """
-        enseignant = request.data.get('enseignant')
-        jour = request.data.get('jour')
-        creneau = request.data.get('creneau')
-        semaine = request.data.get('semaine')
+        disponibilites = request.data  
+        
+        if not isinstance(disponibilites, list):
+            return Response({'error': 'Les données doivent être une liste.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        if Disponibilite.objects.filter(enseignant=enseignant, jour=jour, creneau=creneau, semaine=semaine).exists():
-            return Response({'error': 'Cet enseignant est déjà disponible sur ce créneau.'}, status=status.HTTP_400_BAD_REQUEST)
+        nouvelles_disponibilites = []
+        erreurs = []
 
-        return super().create(request, *args, **kwargs)
+        try:
+            with transaction.atomic(): 
+                for dispo_data in disponibilites:
+                    enseignant = dispo_data.get('enseignant')
+                    jour = dispo_data.get('jour')
+                    creneau = dispo_data.get('creneau')
+                    semaine = dispo_data.get('semaine')
 
+                    if Disponibilite.objects.filter(
+                        enseignant=enseignant, jour=jour, creneau=creneau, semaine=semaine
+                    ).exists():
+                        erreurs.append({
+                            'enseignant': enseignant,
+                            'jour': jour,
+                            'creneau': creneau,
+                            'semaine': semaine,
+                            'error': 'Cet enseignant est déjà disponible sur ce créneau.'
+                        })
+                        continue
+
+                    serializer = self.get_serializer(data=dispo_data)
+                    serializer.is_valid(raise_exception=True)
+                    nouvelles_disponibilites.append(serializer.save())
+
+                if erreurs:
+                    raise ValueError("Certaines disponibilités sont en conflit.")
+
+        except ValueError:
+            return Response({'error': 'Une ou plusieurs disponibilités existent déjà.', 'details': erreurs},status=status.HTTP_400_BAD_REQUEST)
+
+        return Response({'success': 'Disponibilités enregistrées avec succès !'}, status=status.HTTP_201_CREATED)
+
+    def update(self, request, *args, **kwargs):
+        disponibilites = request.data  
+        
+        if not isinstance(disponibilites, list):
+            return Response({'error': 'Les données doivent être une liste.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        mises_a_jour = []
+        erreurs = []
+
+        try:
+            with transaction.atomic():  
+                for dispo_data in disponibilites:
+                    dispo_id = dispo_data.get('id')
+                    enseignant = dispo_data.get('enseignant')
+                    jour = dispo_data.get('jour')
+                    creneau = dispo_data.get('creneau')
+                    semaine = dispo_data.get('semaine')
+
+                    try:
+                        dispo_instance = Disponibilite.objects.get(id=dispo_id)
+                        
+                        if Disponibilite.objects.filter(
+                            enseignant=enseignant, jour=jour, creneau=creneau, semaine=semaine
+                        ).exclude(id=dispo_id).exists():
+                            erreurs.append({
+                                'id': dispo_id,
+                                'enseignant': enseignant,
+                                'jour': jour,
+                                'creneau': creneau,
+                                'semaine': semaine,
+                                'error': 'Ce créneau est déjà occupé par cet enseignant.'
+                            })
+                            continue 
+
+                        serializer = self.get_serializer(dispo_instance, data=dispo_data, partial=True)
+                        serializer.is_valid(raise_exception=True)
+                        mises_a_jour.append(serializer.save())
+
+                    except Disponibilite.DoesNotExist:
+                        erreurs.append({'id': dispo_id, 'error': 'Disponibilité introuvable.'})
+
+                if erreurs:
+                    raise ValueError("Certaines mises à jour sont en conflit.")
+
+        except ValueError:
+            return Response({'error': 'Une ou plusieurs mises à jour ont échoué.', 'details': erreurs},status=status.HTTP_400_BAD_REQUEST)
+
+        return Response({'success': 'Disponibilités mises à jour avec succès !'}, status=status.HTTP_200_OK)
+    
     def reconduire_disponibilites(self, request):
-        """ Reconduire les disponibilités d'une semaine précédente """
         semaine_actuelle = request.data.get('semaine_actuelle')
         semaine_precedente = semaine_actuelle - timedelta(days=7)
         enseignant_id = request.data.get('enseignant')
 
-        # Vérifier si des disponibilités existent pour la semaine précédente
         anciennes_disponibilites = Disponibilite.objects.filter(enseignant=enseignant_id, semaine=semaine_precedente)
         if not anciennes_disponibilites.exists():
             return Response({'error': 'Aucune disponibilité trouvée pour la semaine précédente.'}, status=status.HTTP_404_NOT_FOUND)
 
-        # Cloner les disponibilités en changeant seulement la semaine
         for dispo in anciennes_disponibilites:
             dispo.pk = None  # Crée un nouvel enregistrement
             dispo.semaine = semaine_actuelle
@@ -171,9 +248,6 @@ class GroupeMatiereViewSet(viewsets.ModelViewSet):
     queryset = GroupeMatiere.objects.all()
     serializer_class = GroupeMatiereSerializer
 
-class EmploiTempsViewSet(viewsets.ModelViewSet):
-    queryset = EmploiTemps.objects.all()
-    serializer_class = EmploiTempsSerializer
   
 class SalleViewSet(viewsets.ModelViewSet):
     queryset = Salle.objects.all()
@@ -211,4 +285,24 @@ def get_matiere_enseignants(request, matiere_id):
         return Response({"matiere": matiere.nom, "enseignants": enseignants}, status=status.HTTP_200_OK)
     except Matiere.DoesNotExist:
         return Response({"error": "Matière non trouvée"}, status=status.HTTP_404_NOT_FOUND)
+
+
+class EmploiTempsGroupeViewSet(viewsets.ViewSet):
+    def list(self, request, groupe_id, semaine):
+        emplois = EmploiTemps.objects.filter(groupe_id=groupe_id, semaine=semaine)
+        serializer = EmploiTempsSerializer(emplois, many=True)
+        return Response(serializer.data)
+
+class EmploiTempsEnseignantViewSet(viewsets.ViewSet):
+    def list(self, request, enseignant_id, semaine):
+        emplois = EmploiTemps.objects.filter(enseignant_id=enseignant_id, semaine=semaine)
+        serializer = EmploiTempsSerializer(emplois, many=True)
+        return Response(serializer.data)
+
+# Viewset pour générer ou mettre à jour l'emploi du temps actuel
+class GenererEmploiTempsViewSet(viewsets.ViewSet):
+    def create(self, request):
+        semaine_actuelle = date.today() - timedelta(days=date.today().weekday())
+        message = generer_emploi_temps(semaine_actuelle)
+        return Response({"message": message})
 

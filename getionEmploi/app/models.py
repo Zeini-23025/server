@@ -1,5 +1,5 @@
 from django.db import models, transaction
-from datetime import timedelta
+from datetime import timedelta ,date
 from users.models import User
 from django.utils.crypto import get_random_string
 from getionEmploi.utils import envoyer_email
@@ -79,7 +79,7 @@ class Disponibilite(models.Model):
         ('P1', 'P1'), ('P2', 'P2'), ('P3', '3'),
         ('P4', 'P4'), ('P5', 'P5'), ('P6', 'P6')
     ])
-    semaine = models.DateField()
+    semaine = models.DateField(default=date.today)
 
     class Meta:
         unique_together = ('enseignant', 'jour', 'creneau', 'semaine')
@@ -100,7 +100,7 @@ class ChargeHebdomadaire(models.Model):
     heures_cm = models.IntegerField(default=0)
     heures_td = models.IntegerField(default=0)
     heures_tp = models.IntegerField(default=0)
-    semaine = models.DateField()
+    semaine = models.DateField(default=date.today)
     reconduction_de = models.ForeignKey(
         'self', on_delete=models.SET_NULL, null=True, blank=True, related_name='reconductions'
     )
@@ -167,7 +167,7 @@ class AffectationEnseignant(models.Model):
 
 
 class Calendrier(models.Model):
-    semaine = models.DateField()
+    semaine = models.DateField(default=date.today)
     jour = models.CharField(max_length=20, choices=[
         ('Lundi', 'Lundi'), ('Mardi', 'Mardi'), ('Mercredi', 'Mercredi'), 
         ('Jeudi', 'Jeudi'), ('Vendredi', 'Vendredi'), ('Samedi', 'Samedi')
@@ -191,25 +191,26 @@ class EmploiTemps(models.Model):
         ('P3', 'Période 3'),
         ('P4', 'Période 4'),
         ('P5', 'Période 5'),
-        ('P6', 'Période 6'),
     ]
-
+    
+    
+    semaine = models.DateField(default=date.today)
     groupe = models.ForeignKey(Groupe, on_delete=models.CASCADE)
     matiere = models.ForeignKey(Matiere, on_delete=models.CASCADE)
     enseignant = models.ForeignKey(Enseignant, on_delete=models.CASCADE)
-    salle = models.ForeignKey(Salle, on_delete=models.CASCADE, null=True, blank=True)  # ✅ Ajout de la salle
+    salle = models.ForeignKey(Salle, on_delete=models.CASCADE, null=True, blank=True)
     jour = models.CharField(max_length=10, choices=[
         ('Lundi', 'Lundi'), ('Mardi', 'Mardi'), ('Mercredi', 'Mercredi'),
         ('Jeudi', 'Jeudi'), ('Vendredi', 'Vendredi'), ('Samedi', 'Samedi')
     ])
     creneau = models.CharField(max_length=2, choices=CRENEAUX)
     type_cours = models.CharField(max_length=50)
-
+    
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=['enseignant', 'jour', 'creneau'], name='unique_enseignant_creneau_emploi'),
-            models.UniqueConstraint(fields=['groupe', 'jour', 'creneau'], name='unique_groupe_creneau'),
-            models.UniqueConstraint(fields=['salle', 'jour', 'creneau'], name='unique_salle_creneau'),  # ✅ Ajout de la contrainte
+            models.UniqueConstraint(fields=['enseignant', 'jour', 'creneau' ,'semaine'], name='unique_enseignant_creneau_emploi'),
+            models.UniqueConstraint(fields=['groupe', 'jour', 'creneau','semaine'], name='unique_groupe_creneau'),
+            models.UniqueConstraint(fields=['salle', 'jour', 'creneau','semaine'], name='unique_salle_creneau'),
         ]
 
     def clean(self):
@@ -255,7 +256,6 @@ class ContrainteHoraire(models.Model):
         ('P3', 'Période 3'),
         ('P4', 'Période 4'),
         ('P5', 'Période 5'),
-        ('P6', 'Période 6'),
     ])
 
     class Meta:
