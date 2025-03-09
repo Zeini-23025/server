@@ -5,6 +5,7 @@ from .views import EnseignantViewSet
 router = DefaultRouter()
 router.register(r'matieres', MatiereViewSet)
 router.register(r'enseignants', EnseignantViewSet, basename='enseignant')
+router.register(r'emploi_temps', EmploiTempsViewSet)
 
 urlpatterns = [
     path('api/', include(router.urls)),  

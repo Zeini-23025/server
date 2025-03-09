@@ -60,7 +60,20 @@ class AffectationEnseignant(models.Model):
     enseignant = models.ForeignKey(Enseignant, on_delete=models.CASCADE)
     matiere = models.ForeignKey(Matiere, on_delete=models.CASCADE)
     groupe = models.ForeignKey(Groupe, on_delete=models.CASCADE)
-    type_cours = models.CharField(max_length=50)
+    type_cours = models.CharField(max_length=50, choices=[('CM', 'Cours Magistral'), ('TD', 'Travaux Dirigés'), ('TP', 'Travaux Pratiques')])
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['matiere', 'groupe', 'type_cours'],
+                name='unique_matiere_groupe_typecours'
+            )
+        ]
+
+class Calendrier(models.Model):
+    semaine = models.IntegerField()
+    jour = models.CharField(max_length=20)
+    nb_creneaux = models.IntegerField()
 
 
 class EmploiTemps(models.Model):
@@ -68,9 +81,15 @@ class EmploiTemps(models.Model):
     matiere = models.ForeignKey(Matiere, on_delete=models.CASCADE)
     enseignant = models.ForeignKey(Enseignant, on_delete=models.CASCADE)
     jour = models.CharField(max_length=50)
-    creneau = models.CharField(max_length=50)
+    creneau = models.CharField(max_length=50, choices=[
+        ('P1', 'Période 1'),
+        ('P2', 'Période 2'),
+        ('P3', 'Période 3'),
+        ('P4', 'Période 4'),
+        ('P5', 'Période 5'),
+        ('P6', 'Période 6')
+    ])
     type_cours = models.CharField(max_length=50)
-    semaine = models.IntegerField()
 
 
 class DisponibiliteEnseignant(models.Model):
