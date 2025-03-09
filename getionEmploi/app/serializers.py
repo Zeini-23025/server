@@ -1,10 +1,9 @@
 from rest_framework import serializers
-from .models import Enseignant, Groupe, GroupeMatiere, ConflitGroupe, Matiere
+from .models import Matiere ,EmploiTemps ,Groupe ,Enseignant ,Disponibilite ,Calendrier ,ChargeHebdomadaire ,AffectationEnseignant ,GroupeMatiere ,ContrainteHoraire
 
 class MatiereSerializer(serializers.ModelSerializer):
     class Meta:
         model = Matiere
-        fields = '__all__'
 
 class EnseignantSerializer(serializers.ModelSerializer):
     class Meta:
@@ -12,30 +11,103 @@ class EnseignantSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class GroupeSerializer(serializers.ModelSerializer):
-    matieres = serializers.SerializerMethodField()
-    conflits = serializers.SerializerMethodField()
+    sous_groupes = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
 
     class Meta:
         model = Groupe
-        fields = ['id', 'nom', 'semestre', 'matieres', 'conflits']
+        fields = ['id', 'nom', 'semestre', 'parent', 'sous_groupes']
+        
+class DisponibiliteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Disponibilite
+        fields = ['id', 'enseignant', 'jour', 'creneau', 'semaine']
+        
+class CalendrierSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Calendrier
+        fields = ['id', 'semaine', 'jour', 'nb_creneaux', 'exception', 'creneaux_exceptionnels']
+        
+        
+class ChargeHebdomadaireSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ChargeHebdomadaire
+        fields = ['id', 'matiere', 'heures_cm', 'heures_td', 'heures_tp', 'semaine', 'reconduction_de']
 
-    def get_matieres(self, obj):
-        """Retourne la liste des matières liées à ce groupe"""
-        matieres = Matiere.objects.filter(groupematiere__groupe=obj)
-        return MatiereSerializer(matieres, many=True).data
+class AffectationEnseignantSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AffectationEnseignant
+        fields = ['id', 'enseignant', 'matiere', 'groupe', 'type_cours', 'jour', 'creneau']
 
-    def get_conflits(self, obj):
-        """Retourne la liste des groupes en conflit avec ce groupe"""
-        conflits = ConflitGroupe.objects.filter(groupe1=obj) | ConflitGroupe.objects.filter(groupe2=obj)
-        groupes = {c.groupe1 if c.groupe2 == obj else c.groupe2 for c in conflits}
-        return [g.nom for g in groupes]
+    def validate(self, data):
+        """ Vérifie si l'enseignant est disponible et s'il n'y a pas de conflit """
+        enseignant = data['enseignant']
+        jour = data['jour']
+        creneau = data['creneau']
 
+        # Vérifier la disponibilité de l'enseignant
+        if not enseignant.disponibilites.filter(jour=jour, creneau=creneau).exists():
+            raise serializers.ValidationError("L'enseignant n'est pas disponible pour ce créneau.")
+
+        # Vérifier s'il est déjà affecté à un autre cours
+        if AffectationEnseignant.objects.filter(enseignant=enseignant, jour=jour, creneau=creneau).exists():
+            raise serializers.ValidationError("L'enseignant est déjà affecté à un autre cours sur ce créneau.")
+
+        return data
+    
 class GroupeMatiereSerializer(serializers.ModelSerializer):
+    groupe = serializers.PrimaryKeyRelatedField(queryset=Groupe.objects.all())
+    matiere = serializers.PrimaryKeyRelatedField(queryset=Matiere.objects.all())
+
     class Meta:
         model = GroupeMatiere
-        fields = '__all__'
+        fields = ['id', 'groupe', 'matiere']
 
-class ConflitGroupeSerializer(serializers.ModelSerializer):
+    def create(self, validated_data):
+        groupe = validated_data['groupe']
+        matiere = validated_data['matiere']
+        
+        # Vérifier si la relation existe déjà
+        if GroupeMatiere.objects.filter(groupe=groupe, matiere=matiere).exists():
+            raise serializers.ValidationError("Ce groupe est déjà associé à cette matière.")
+        
+        return GroupeMatiere.objects.create(**validated_data)
+
+
+class ContrainteHoraireSerializer(serializers.ModelSerializer):
     class Meta:
-        model = ConflitGroupe
-        fields = '__all__'
+        model = ContrainteHoraire
+        fields = ['id', 'groupe', 'matiere', 'jour', 'creneau']
+
+    def validate(self, data):
+        """ Empêcher les doublons """
+        if ContrainteHoraire.objects.filter(
+            groupe=data['groupe'], matiere=data['matiere'], jour=data['jour'], creneau=data['creneau']
+        ).exists():
+            raise serializers.ValidationError("Une contrainte existe déjà pour ce groupe et cette matière.")
+        return data
+    
+class EmploiTempsSerializer(serializers.ModelSerializer):
+   
+    class Meta:
+        model = EmploiTemps
+        fields = ['id', 'groupe', 'matiere', 'enseignant', 'jour', 'creneau', 'type_cours']
+
+    def validate(self, data):
+        """
+        Vérifie s'il y a des conflits avant d'ajouter un emploi du temps.
+        """
+        enseignant = data['enseignant']
+        groupe = data['groupe']
+        jour = data['jour']
+        creneau = data['creneau']
+
+        # Vérifier si l'enseignant est déjà occupé à ce créneau
+        if EmploiTemps.objects.filter(enseignant=enseignant, jour=jour, creneau=creneau).exists():
+            raise serializers.ValidationError("L'enseignant a déjà un cours sur ce créneau.")
+
+        # Vérifier si le groupe a déjà un cours sur ce créneau
+        if EmploiTemps.objects.filter(groupe=groupe, jour=jour, creneau=creneau).exists():
+            raise serializers.ValidationError("Le groupe a déjà un cours sur ce créneau.")
+
+        return data
+
