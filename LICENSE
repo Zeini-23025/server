@@ -1,8 +1,21 @@
-### Explications supplémentaires :
-- **Clonage du repository** : Les utilisateurs sont invités à cloner le repository avec Git.
-- **Docker** : Les étapes expliquent comment construire l'image Docker, exécuter l'application en local, gérer les migrations, et exécuter l'application en mode développement.
-- **CI/CD** : Une section est dédiée à la configuration GitHub Actions pour automatiser le déploiement de l'image Docker vers Docker Hub.
-- **API REST** : Des exemples d'API sont donnés pour aider à l'interaction avec le backend.
-- **Contribution** : Les utilisateurs peuvent facilement contribuer en suivant les étapes indiquées dans la section "Contribution".
+Copyright (c) 2025 NOT FOUND
 
-Ce `README.md` est complet et très utile pour les utilisateurs souhaitant mettre en place et utiliser votre projet avec Docker ou Git.
+Par la présente, il est octroyé à toute personne obtenant une copie de ce logiciel et des fichiers associés (le "Logiciel"), la permission de traiter le Logiciel sous les conditions suivantes :
+
+1. **Utilisation personnelle** : Vous pouvez utiliser ce logiciel gratuitement à des fins personnelles uniquement. L'usage personnel est défini comme une utilisation non commerciale réalisée par des particuliers pour leurs besoins personnels et privés.
+   
+2. **Usage commercial** : L'utilisation commerciale du logiciel, y compris mais sans se limiter à l'utilisation dans des entreprises, organisations ou tout autre cadre à but lucratif, nécessite une licence payante. Toute entreprise ou organisation souhaitant utiliser ce logiciel doit obtenir une licence commerciale.
+
+3. **Modification et distribution** : Vous pouvez modifier et distribuer le logiciel à des fins personnelles gratuitement, mais vous ne pouvez pas distribuer ou vendre le logiciel dans un cadre commercial sans obtenir une licence payante.
+
+4. **Sous-licence** : Vous pouvez accorder une sous-licence pour l'usage personnel du logiciel, mais la sous-licence commerciale nécessite l'achat d'une licence payante.
+
+5. **Vente** : Vous ne pouvez pas vendre ce logiciel ou des copies du logiciel sans avoir acquis une licence commerciale.
+
+### Conditions supplémentaires :
+
+1. **Licence commerciale pour usage commercial** : Si vous êtes une entreprise ou une organisation, ou si vous souhaitez utiliser ce logiciel dans un cadre à but lucratif, vous devez acheter une licence commerciale.
+   
+2. **Aucune garantie** : Le logiciel est fourni "tel quel", sans aucune garantie, explicite ou implicite. L'auteur ou le titulaire des droits d'auteur ne pourra être tenu responsable de tout dommage ou problème causé par l'utilisation du logiciel.
+
+En résumé, ce logiciel est **gratuit pour un usage personnel uniquement**. Si vous êtes une entreprise ou une organisation, vous devez acheter une **licence commerciale** pour utiliser le logiciel à des fins commerciales.
