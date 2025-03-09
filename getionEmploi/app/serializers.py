@@ -1,13 +1,14 @@
 from rest_framework import serializers
-from .models import Enseignant ,Groupe, GroupeMatiere, ConflitGroupe,Matiere
+from .models import Enseignant, Groupe, GroupeMatiere, ConflitGroupe, Matiere
+
+class MatiereSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Matiere
+        fields = '__all__'
 
 class EnseignantSerializer(serializers.ModelSerializer):
     class Meta:
         model = Enseignant
-        fields = '__all__'
-class MatiereSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Matiere
         fields = '__all__'
 
 class GroupeSerializer(serializers.ModelSerializer):

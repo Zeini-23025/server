@@ -1,14 +1,28 @@
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.decorators import action
-from .models import Enseignant
-from .serializers import EnseignantSerializer
-from .models import Groupe, GroupeMatiere, ConflitGroupe,Matiere
-from .serializers import GroupeSerializer, GroupeMatiereSerializer, ConflitGroupeSerializer
+from .models import (
+    Matiere, 
+    Enseignant, 
+    Groupe, 
+    GroupeMatiere, 
+    ConflitGroupe
+)
+from .serializers import (
+    MatiereSerializer, 
+    EnseignantSerializer,
+    GroupeSerializer, 
+    GroupeMatiereSerializer, 
+    ConflitGroupeSerializer
+)
+
+class MatiereViewSet(viewsets.ModelViewSet):
+    queryset = Matiere.objects.all()
+    serializer_class = MatiereSerializer
+
 class EnseignantViewSet(viewsets.ModelViewSet):
     queryset = Enseignant.objects.all()
     serializer_class = EnseignantSerializer
-
 
 class GroupeViewSet(viewsets.ModelViewSet):
     queryset = Groupe.objects.all()
