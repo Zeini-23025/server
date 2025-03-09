@@ -7,11 +7,14 @@ WORKDIR /app
 # Copier les fichiers du projet
 COPY getionEmploi/ .
 
+# Copier le fichier requirements.txt s'il est dans getionEmploi/
+COPY getionEmploi/requirements.txt .
+
 # Installer les dépendances
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Exposer le port 8000
 EXPOSE 8000
 
-# Lancer le serveur Django
-CMD ["gunicorn", "-b", "0.0.0.0:8000", "getionEmploi.wsgi:application"]
+# Exécuter les migrations et collecter les fichiers statiques avant de lancer le serveur
+CMD ["sh", "-c", "python manage.py migrate && python manage.py collectstatic --noinput && gunicorn -b 0.0.0.0:8000 getionEmploi.wsgi:application"]
