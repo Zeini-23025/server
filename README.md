@@ -77,7 +77,7 @@ Un pipeline **CI/CD** est configuré via **GitHub Actions** pour automatiser le 
     ```
 
 3. **Accéder à l’application Backend** :
-    - [http://localhost:8000](http://localhost:8000)
+    - [https://docker-server-m0lg.onrender.com/](https://docker-server-m0lg.onrender.com/)
 
 ---
 
